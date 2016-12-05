@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: dk1qvEDjI1aLNBLTrOEwmc5dfR/K4wRJUZutHw/Ai1Vgqw6EJkyYEomgITDxZoZ7/mfC0+VsIy62hUqLVbYPSvA6lxgkJDfHuPvMo2wJHfmneXlQTO6qvFvZepp6+SLiPlOy70fkNFRVQ0qRnbRrzz3HQ5drLkHpdC8tz7gumWmrhWr3fquYEtLPayQbuUeA6lIK5fdLFZ7CDvCFZJQX4cKW+drO6icxgrSbOe6h7TvKoMw4A9E9ynUuq9VzM3qfPoc2BDw2M6wPZtMuuQ33nkM1D0A7k1w0ZQtD7tltsaVsZuSCLW/FYBdSIMo5ZvREto67SFwPBiLqc4Xr2rc+zLSp5Uc/P+YkjDcZGlAnbINQqqbNNeTB8tA81W/OO5Cda7Mk3fj09V96ba+DZjacafMmB42EQVcY2B4omzlY0RrbeDwNgziyiKgQR9jFOqhBoSM24QU+xyskYpnNvHGBdpO36YtJdU9D6ygZYo93e1lpYUC1XKphLuo4xPK7a9oTYVp77OwQAQJj8KVtZANbDuKPSoT8ZldmVziYIbUDqTEslkW7BG5YIc6b0TkBl3kD91/E/yb/yo6vMvxCeig9DrHk1PA5Xm0dDRpdDSzwx00rXEFWi/Zb7VBxMYe13Dv0Nvhqve5d93Q23JjdgJyIpbpVWVBxPfJQpxjy0EGx8OU=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Pony-Rider-Boys-in-Montana--Or-The-Mystery-of-the-Old-Custer-Trail_6068
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
